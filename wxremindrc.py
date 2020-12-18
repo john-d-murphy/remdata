@@ -1,12 +1,8 @@
 #!/usr/bin/python
 import sys, os, os.path, codecs
-import __builtin__
+import builtins
 
 has_wxremindrc = False
-# cf_version = (1,1)      # the current version of this configuration file
-# rc_version = (0,0)      # this will be updated to the version stored in
-#                         # ~/.wxremindrc
-
 rc = []
 added = []
 msg = []
@@ -41,7 +37,7 @@ def check(variable):
     description = "\n### ".join(variable[2:])
     if description:
         rc.append("\n### %s" % description)
-    if globals().has_key(name):
+    if name in globals():
         # print "Skipping: %s" % name
         if type(globals()[name]) == str:
             if globals()[name] != "":
@@ -54,15 +50,15 @@ def check(variable):
     else:
         if type(defining_code) == str:
             try:
-                exec ("res = %s" % defining_code)
+                exec("res = %s" % defining_code)
                 # print "res = %s" % res
             except:
-                exec ("res = '%s'" % defining_code)
+                exec("res = '%s'" % defining_code)
                 # print "res = %s" % res
         elif type(defining_code) in [tuple, list]:
-            exec ("res = (%s)" % repr(defining_code))
+            exec("res = (%s)" % repr(defining_code))
         else:
-            exec ("res = %s" % defining_code)
+            exec("res = %s" % defining_code)
         globals()[name] = res
         if globals()[name] != "not set":
             # print "Adding: %s" % name
@@ -115,10 +111,12 @@ def set_remind():
     remind = PathSearch("remind")
     if not remind:
         fatal = True
-        print (
-            unIndent(
-                """\
+        print(
+            (
+                unIndent(
+                    """\
         Fatal Error: Could not find required file 'remind'."""
+                )
             )
         )
     return remind
@@ -128,11 +126,13 @@ def set_reminders():
     reminders = os.path.expanduser("~/.reminders")
     if not os.path.isfile(reminders):
         fatal = True
-        print (
-            unIndent(
-                """\
+        print(
+            (
+                unIndent(
+                    """\
         Fatal Error: Could not find required file '%s'."""
-                % reminders
+                    % reminders
+                )
             )
         )
         reminders = ""
@@ -215,9 +215,10 @@ def set_editor_settings():
         rc.append("editor = ''")
         rc.append("editold = ''")
         rc.append("editnew = ''")
-        print (
-            unIndent(
-                """\
+        print(
+            (
+                unIndent(
+                    """\
 
         You will need to specify values for:
 
@@ -226,13 +227,15 @@ def set_editor_settings():
             editnew
 
         in %s."""
-                % wxremindrc
+                    % wxremindrc
+                )
             )
         )
     else:
-        print (
-            unIndent(
-                """\
+        print(
+            (
+                unIndent(
+                    """\
 
         The following settings were made for your external editor:
 
@@ -241,39 +244,24 @@ def set_editor_settings():
             editnew  = '%s'
 
         Edit %s if you wish to make changes."""
-                % (selected[0], selected[1], selected[2], wxremindrc)
+                    % (selected[0], selected[1], selected[2], wxremindrc)
+                )
             )
         )
         if len(unselected) > 0:
-            print unIndent(
-                """\
+            print(
+                unIndent(
+                    """\
 
             Comparable settings were also made for
 
                 %s
 
             but were commented out."""
-                % "\n    ".join(unselected)
+                    % "\n    ".join(unselected)
+                )
             )
     return None
-
-
-def set_editor():
-    if not set_ed:
-        set_editor_settings()
-    return "not set"
-
-
-def set_editold():
-    if not set_ed:
-        set_editor_settings()
-    return "not set"
-
-
-def set_editnew():
-    if not set_ed:
-        set_editor_settings()
-    return "not set"
 
 
 def make_wxremindrc():
@@ -742,13 +730,13 @@ variables = [
 
 # main
 if len(sys.argv) > 1 and sys.argv[1] == "-f":
-    force = True
+    FORCE = True
 else:
-    force = False
+    FORCE = False
 
 wxremindrc = set_wxremindrc()
-if has_wxremindrc and not force:
-    execfile(wxremindrc)
+if has_wxremindrc and not FORCE:
+    exec(compile(open(wxremindrc, "rb").read(), wxremindrc, "exec"))
 
 for variable in variables:
     check(variable)
@@ -756,17 +744,18 @@ for variable in variables:
 if fatal:
     sys.exit()
 
-if len(added) > 0 or force:
+if len(added) > 0 or FORCE:
     # print added
     if has_wxremindrc:
         import shutil
 
         shutil.copyfile(wxremindrc, "%s.bak" % wxremindrc)
         make_wxremindrc()
-        execfile(wxremindrc)
-        if force:
-            print unIndent(
-                """\
+        exec(compile(open(wxremindrc, "rb").read(), wxremindrc, "exec"))
+        if FORCE:
+            print(
+                unIndent(
+                    """\
 
 IMPORTANT: Your configuration file
 
@@ -781,11 +770,13 @@ and a new configuration file with default settings has been saved as
     %s
 
 """
-                % (wxremindrc, wxremindrc, wxremindrc)
+                    % (wxremindrc, wxremindrc, wxremindrc)
+                )
             )
         else:
-            print unIndent(
-                """\
+            print(
+                unIndent(
+                    """\
 
 IMPORTANT: Your configuration file
 
@@ -804,22 +795,26 @@ has been saved as
 
     %s
 """
-                % (wxremindrc, wxremindrc, "\n    ".join(added), wxremindrc)
+                    % (wxremindrc, wxremindrc, "\n    ".join(added), wxremindrc)
+                )
             )
 
     else:
         make_wxremindrc()
-        print unIndent(
-            """\
+        print(
+            unIndent(
+                """\
 A new configuration file with default settings has been saved as
 
     %s
 """
-            % wxremindrc
+                % wxremindrc
+            )
         )
 
-    print unIndent(
-        """\
+    print(
+        unIndent(
+            """\
 
 Please remember to rate wxRemind at <http://freshmeat.net/projects/wxrem/>
 and to send your comments to <daniel.graham@duke.edu>. Continuing
@@ -828,4 +823,5 @@ improvement depends upon your feedback.
 Thanks for using wxRemind!
 
 """
+        )
     )
