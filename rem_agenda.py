@@ -3,6 +3,7 @@
 wxremdata.py
 
 Copyright (c) 2006-2007 Daniel Graham <daniel.graham@duke.edu>.
+Copyright (c) 2020 John Murphy <john.david.murphy@gmail.com>
 All rights reserved.
 
 License:
@@ -169,13 +170,13 @@ def parse_arguments():
     parser.add_argument(
         "--agenda_start_hour",
         default=DEFAULT_AGENDA_START,
-        help="Number of days to display/search (default: %d)" % DEFAULT_DAYS,
+        help="Hour in day agenda starts (default: %d)" % DEFAULT_AGENDA_START,
     )
 
     parser.add_argument(
         "--agenda_end_hour",
         default=DEFAULT_AGENDA_END,
-        help="Number of days to display/search (default: %d)" % DEFAULT_DAYS,
+        help="Hour in day agenda ends (default: %d)" % DEFAULT_AGENDA_END,
     )
     parser.add_argument(
         "-v",
